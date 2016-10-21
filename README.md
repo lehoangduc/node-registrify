@@ -1,6 +1,8 @@
 # node-registrify
 > Fast, simple Service registry for building centralized logging in microservices system.
 
+[![npm package](https://nodei.co/npm/node-registrify.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/node-registrify/)
+
 The project using Nodejs and Hapi framework with Redis for storing info.
 
 ### Running project
