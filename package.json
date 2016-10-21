@@ -1,0 +1,32 @@
+{
+  "name": "node-registrify",
+  "description": "Fast, simple Service registry for building centralized logging in microservices system",
+  "version": "3.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lehoangduc/node-registrify"
+  },
+  "keywords": [
+    "framework",
+    "http",
+    "api",
+    "microservices",
+    "service registry"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=4.5.0"
+  },
+  "dependencies": {
+    "app-root-path": "^2.0.1",
+    "bluebird": "^3.4.6",
+    "bunyan": "^1.8.3",
+    "dotenv": "^2.0.0",
+    "hapi": "^15.2.0",
+    "redis": "^2.6.2",
+    "underscore": "^1.8.3"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
