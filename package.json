@@ -1,7 +1,7 @@
 {
   "name": "node-registrify",
   "description": "Fast, simple Service registry for building centralized logging in microservices system",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "repository": {
     "type": "git",
     "url": "git://github.com/lehoangduc/node-registrify"

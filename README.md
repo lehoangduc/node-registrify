@@ -59,14 +59,14 @@ NodeRegistrify.run();
 ## REST APIs
 
 #### Ping
-<pre>
+```
 curl -XGET /ping
-</pre>
+```
 
 #### Register a service
-<pre>
-curl -XPUT -F "&lt;meta_key&gt;=&lt;meta_value>"... /services/&lt;service_name&gt;/&lt;host_name>
-</pre>
+```
+curl -XPUT -F "<meta_key>=<meta_value>"... /services/<service_name>/<host_name>
+```
 
 * Example Client PHP codes ([guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
 ```php
@@ -85,9 +85,9 @@ $client->put(sprintf('/services/%s/%s', $service, gethostname()), [
 ```
 
 #### Delete a service
-<pre>
-curl -XDELETE /services/&lt;service_name&gt;/&lt;host_name>
-</pre>
+```
+curl -XDELETE /services/<service_name>/<host_name>
+```
 
 * Example Client PHP codes ([guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
 ```php
@@ -102,9 +102,9 @@ $client->delete(sprintf('/services/%s/%s', $service, gethostname()));
 ```
 
 #### Send log to a service
-<pre>
-curl -XPOST -H "Content-Type: text/html" -d "this is a log" /services/&lt;service_name&gt;/&lt;host_name&gt;/log
-</pre>
+```
+curl -XPOST -H "Content-Type: text/html" -d "this is a log" /services/<service_name>/<host_name>/log
+```
 
 * Example Client PHP codes ([guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
 ```php
@@ -123,31 +123,31 @@ $client->post(sprintf('/services/%s/%s/log', $service, gethostname()), [
 ```
 
 #### List all services
-<pre>
+```
 curl -XGET /services
-</pre>
+```
 
 #### List all hosts
-<pre>
+```
 curl -XGET /hosts
-</pre>
+```
 
 #### List all services in given host
-<pre>
-curl -XGET /services/&lt;host_name&gt;/services
-</pre>
+```
+curl -XGET /services/<host_name>/services
+```
 
 #### Get info of given service
-<pre>
-curl -XGET /services/&lt;service_name&gt;/&lt;host_name>
-</pre>
+```
+curl -XGET /services/<service_name>/<host_name>
+```
 
 #### List all hosts in given service
-<pre>
-curl -XGET /services/&lt;service_name&gt;/hosts
-</pre>
+```
+curl -XGET /services/<service_name>/hosts
+```
 
 #### List all logs in given service
-<pre>
-curl -XGET /services/&lt;service_name&gt;/&lt;host_name&gt;/logs
-</pre>
+```
+curl -XGET /services/<service_name>/<host_name>/logs
+```
