@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const util = require('util');
-const underscore = require('underscore');
+const _ = require('underscore');
 const logger = require('../../logger');
 
 var ServicePlugin = function(server, options, next) {
@@ -173,7 +173,7 @@ var ServicePlugin = function(server, options, next) {
       var self = this;
       var params = request.params;
 
-      if (!params.name || !params.host) {
+      if (!params.name) {
         return Promise.reject({
           error: {
             message: '"name","host" params are required'
@@ -183,9 +183,28 @@ var ServicePlugin = function(server, options, next) {
 
       var storage = server.plugins.Redis.client;
 
-      return new Promise(function(resolve, reject) {
-        storage.hgetall(self.getServiceKey(params.name, params.host), function(error, result) {
-          if (error || !result) {
+      if (params.host) {
+        return new Promise(function(resolve, reject) {
+          storage.hgetall(self.getServiceKey(params.name, params.host), function(error, result) {
+            if (error || !result) {
+              return reject({
+                error: {
+                  message: 'Cannot get service info'
+                }
+              });
+            }
+
+            resolve({ data: result });
+          });
+        });
+      }
+
+      // Get info in all hosts
+      return new Promise(function (resolve, reject) {
+        storage.smembers('service:' + params.name + ':hosts', function (error, result) {
+          if (error) {
+            logger.debug(error);
+
             return reject({
               error: {
                 message: 'Cannot get service info'
@@ -193,8 +212,29 @@ var ServicePlugin = function(server, options, next) {
             });
           }
 
-          resolve({ data: result });
+          resolve(result);
         });
+      }).then(function (hosts) {
+        return Promise.map(hosts, function (host) {
+          return new Promise(function(resolve, reject) {
+            storage.hgetall(self.getServiceKey(params.name, host), function(error, result) {
+              if (error || !result) {
+                return reject({
+                  error: {
+                    message: 'Cannot get service info'
+                  }
+                });
+              }
+
+              // Assign host property
+              result.host = host;
+
+              resolve(result);
+            });
+          });
+        })
+      }).then(function (result) {
+        return { data: result };
       });
     },
 
@@ -259,8 +299,8 @@ var ServicePlugin = function(server, options, next) {
           .sadd('service:' + params.name + ':hosts', params.host)
           .sadd('host:' + params.host + ':services', params.name);
 
-        underscore.each(request.payload, function(value, field) {
-          multi.hsetnx(self.getServiceKey(params.name, params.host), field, value);
+        _.each(request.payload, function(value, field) {
+          multi.hset(self.getServiceKey(params.name, params.host), field, value);
         });
 
         multi
@@ -275,7 +315,7 @@ var ServicePlugin = function(server, options, next) {
             });
           }
 
-          logger.debug('Register new service success');
+          logger.debug('Registered new service');
 
           resolve({
             data: {
@@ -482,10 +522,26 @@ var ServicePlugin = function(server, options, next) {
     }
   });
 
-  // Get info of given service
+  // Get info of given service in a host
   server.route({
     method: 'GET',
     path: '/services/{name}/{host}',
+    handler: function(request, reply) {
+      Service
+        .service(request)
+        .then(function(result) {
+          reply(result);
+        })
+        .catch(function(error) {
+          reply(error);
+        });
+    }
+  });
+
+  // Get info of given service
+  server.route({
+    method: 'GET',
+    path: '/services/{name}',
     handler: function(request, reply) {
       Service
         .service(request)
@@ -567,7 +623,7 @@ var ServicePlugin = function(server, options, next) {
 
 ServicePlugin.attributes = {
   name: 'Registry',
-  version: '1.0.0',
+  version: '3.0.4',
   multiple: false
 };
 

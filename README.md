@@ -1,5 +1,5 @@
 # node-registrify
-> Fast, simple Service registry for building centralized logging in microservices system.
+> Fast, simple Service registry for Client-side service discovery in microservices system.
 
 [![npm package](https://nodei.co/npm/node-registrify.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/node-registrify/)
 
@@ -44,13 +44,13 @@ node-registry --server-host localhost --server-port 8000
 const NodeRegistrify = require('node-registrify');
 
 NodeRegistrify.init({
-  api_host:   '',
-  api_port:   '',
-  redis_host: '',
-  redis_port: '',
-  redis_db:   '',
-  log_level: '',
-  log_max_entries: ''
+  api_host:   'localhost',
+  api_port:   '8000',
+  redis_host: 'localhost',
+  redis_port: '6379',
+  redis_db:   0,
+  log_level: 'info',
+  log_max_entries: 10
 });
 
 NodeRegistrify.run();
@@ -68,7 +68,7 @@ curl -XGET /ping
 curl -XPUT -F "<meta_key>=<meta_value>"... /services/<service_name>/<host_name>
 ```
 
-* Example Client PHP codes ([guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
+* Example Client PHP codes (with [guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
 ```php
 
 $client = new HttpClient([
@@ -78,7 +78,10 @@ $client = new HttpClient([
 
 $client->put(sprintf('/services/%s/%s', $service, gethostname()), [
 	'form_params' => [
-		'pid' => getmypid()
+	    'id' => 'redis',
+		'pid' => getmypid(),
+		'ip' => '192.168.1.2',
+		'port' => 6379
 	]
 ]);
 
@@ -89,7 +92,7 @@ $client->put(sprintf('/services/%s/%s', $service, gethostname()), [
 curl -XDELETE /services/<service_name>/<host_name>
 ```
 
-* Example Client PHP codes ([guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
+* Example Client PHP codes (with [guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
 ```php
 
 $client = new HttpClient([
@@ -106,7 +109,7 @@ $client->delete(sprintf('/services/%s/%s', $service, gethostname()));
 curl -XPOST -H "Content-Type: text/html" -d "this is a log" /services/<service_name>/<host_name>/log
 ```
 
-* Example Client PHP codes ([guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
+* Example Client PHP codes (with [guzzlehttp/guzzle](https://github.com/guzzle/guzzle)):
 ```php
 
 $client = new HttpClient([
@@ -137,9 +140,14 @@ curl -XGET /hosts
 curl -XGET /services/<host_name>/services
 ```
 
-#### Get info of given service
+#### Get info of given service in a host
 ```
 curl -XGET /services/<service_name>/<host_name>
+```
+
+#### Get info of given service
+```
+curl -XGET /services/<service_name>
 ```
 
 #### List all hosts in given service
