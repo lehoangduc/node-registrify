@@ -1,15 +1,12 @@
 "use strict";
 
-const ROOT_PATH = require('app-root-path');
 const events = require('events');
-const logger = require(ROOT_PATH + '/libs/logger');
+const logger = require('../../logger');
 
 var EventEmitterPlugin = function(server, options, next) {
   var eventEmitter = function() {
-    var self = this;
-
     // Listen events
-    self.on('event:log', function(data) {
+    this.on('event:log', function(data) {
       logger.debug('Event log data: ', data);
     });
   };

@@ -1,11 +1,9 @@
 "use strict";
 
-const ROOT_PATH = require('app-root-path');
 const Promise = require('bluebird');
 const util = require('util');
 const underscore = require('underscore');
-const logger = require(ROOT_PATH + '/libs/logger');
-const LOG_MAX_ENTRIES = process.env.LOG_MAX_ENTRIES || 10;
+const logger = require('../../logger');
 
 var ServicePlugin = function(server, options, next) {
   var Service = {
@@ -187,7 +185,7 @@ var ServicePlugin = function(server, options, next) {
 
       return new Promise(function(resolve, reject) {
         storage.hgetall(self.getServiceKey(params.name, params.host), function(error, result) {
-          if (error) {
+          if (error || !result) {
             return reject({
               error: {
                 message: 'Cannot get service info'
@@ -220,7 +218,7 @@ var ServicePlugin = function(server, options, next) {
       var storage = server.plugins.Redis.client;
 
       return new Promise(function(resolve, reject) {
-        storage.lrange(self.getServiceKey(params.name, params.host) + ':event:log', 0, LOG_MAX_ENTRIES - 1, function(error, result) {
+        storage.lrange(self.getServiceKey(params.name, params.host) + ':event:log', 0, options.log_max_entries - 1, function(error, result) {
           if (error) {
             return reject({
               error: {
@@ -374,7 +372,7 @@ var ServicePlugin = function(server, options, next) {
           storage
             .multi()
             .lpush(self.getServiceKey(params.name, params.host) + ':event:log', request.payload)
-            .ltrim(self.getServiceKey(params.name, params.host) + ':event:log', 0, LOG_MAX_ENTRIES - 1)
+            .ltrim(self.getServiceKey(params.name, params.host) + ':event:log', 0, options.log_max_entries - 1)
             .hset(self.getServiceKey(params.name, params.host), 'last_log_time', Math.floor(Date.now() / 1000))
             .exec(function (error, replies) {
               if (error) {

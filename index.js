@@ -1,47 +1,70 @@
 'use strict';
 
-require('dotenv').load();
-
-const ROOT_PATH = require('app-root-path');
 const Hapi = require('hapi');
-const logger = require(ROOT_PATH + '/libs/logger');
+const logger = require('./libs/logger');
 
-// Create a server with a host and port
-const server = new Hapi.Server();
-server.connection({
-  labels: ['service'],
-  host: process.env.API_HOST,
-  port: process.env.API_PORT,
-  routes: { cors: true }
-});
+function NodeRegistrify() {
+  this.server = new Hapi.Server();
+}
 
-// Load multiple plugins
-server.register([
-  {
-    register: require(ROOT_PATH + '/libs/plugins/eventEmitter/index')
-  },
-  {
-    register: require(ROOT_PATH + '/libs/plugins/redis/index'),
-    options: {
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT,
-      db  : process.env.REDIS_DB
-    }
-  },
-  {
-    register: require(ROOT_PATH + '/libs/plugins/service/index')
-  }
-], function (error) {
-  if (error) {
-    logger.error('Failed to load a plugin:', error);
-  } else {
-    // Start the server
-    server.start((err) => {
-      if (err) {
-        throw err;
+NodeRegistrify.prototype.init = function (options) {
+  this.options = {
+    api_host:        options.api_host || 'localhost',
+    api_port:        options.api_port || '8000',
+    redis_host:      options.redis_host || 'localhost',
+    redis_port:      options.redis_port || '6379',
+    redis_db:        options.redis_db || 0,
+    log_level:       options.log_level || 'info',
+    log_max_entries: options.log_max_entries || 10
+  };
+
+  process.env.LOG_LEVEL = this.options.log_level;
+
+  this.server.connection({
+    labels: ['service'],
+    host: this.options.api_host,
+    port: this.options.api_port,
+    routes: { cors: true }
+  });
+};
+
+
+NodeRegistrify.prototype.run = function () {
+  var self = this;
+
+  // Load plugins
+  self.server.register([
+    {
+      register: require('./libs/plugins/eventEmitter/index')
+    },
+    {
+      register: require('./libs/plugins/redis/index'),
+      options: {
+        host: self.options.redis_host,
+        port: self.options.redis_port,
+        db  : self.options.redis_db
       }
+    },
+    {
+      register: require('./libs/plugins/service/index'),
+      options: {
+        log_max_entries: self.options.log_max_entries
+      }
+    }
+  ], function (error) {
+    if (error) {
+      logger.error('Failed to load a plugin:', error);
+    } else {
+      // Start server
+      self.server.start((err) => {
+        if (err) {
+          throw err;
+        }
 
-      logger.info('Server is running at http://%s:%s/', process.env.API_HOST, process.env.API_PORT);
-    });
-  }
-});
+        logger.info('Server is running at http://%s:%s/', self.options.api_host, self.options.api_port);
+      });
+    }
+  });
+};
+
+module.exports = new NodeRegistrify();

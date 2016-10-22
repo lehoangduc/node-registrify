@@ -1,15 +1,14 @@
 "use strict";
 
-const ROOT_PATH = require('app-root-path');
-const logger = require(ROOT_PATH + '/libs/logger');
+const logger = require('../../logger');
 const redis = require('redis');
 
 var RedisPlugin = function (server, options, next) {
   options = options || {};
 
-  var host = options.host || 'localhost';
-  var port = options.port || 6379;
-  var db   = options.db   || 0;
+  var host = options.host;
+  var port = options.port;
+  var db   = options.db;
 
   var redisClient = redis.createClient(port, host);
   redisClient.select(db);
