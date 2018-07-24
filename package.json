@@ -24,7 +24,7 @@
     "bluebird": "^3.4.6",
     "bunyan": "^1.8.3",
     "commander": "^2.9.0",
-    "hapi": "^15.2.0",
+    "hapi": "^17.0.0",
     "redis": "^2.6.2",
     "underscore": "^1.8.3"
   },
