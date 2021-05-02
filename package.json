@@ -25,7 +25,7 @@
     "bunyan": "^1.8.3",
     "commander": "^2.9.0",
     "hapi": "^17.0.0",
-    "redis": "^2.6.2",
+    "redis": "^3.1.1",
     "underscore": "^1.8.3"
   },
   "scripts": {
